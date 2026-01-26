@@ -18,8 +18,50 @@ const public_users = express.Router();
   },100);
 });
 }
+// ! THE FUNCTION TO FIND THE BOOKS DETAILS BASED ON ISBN !//
+function getbookbyisbn(isbn){
+  return new Promise((resolve,reject)=>{
+    setTimeout(()=>{
+      if(books){
+        resolve(books[isbn]);
+      }
+      else{
+        reject('no book found');
+      }
+    },100);
+
+});
+}
+// ~ TO FIND THE DETAILS OF THE BOOKS BASED ON AUTHOR NAME USING PROMISE ASYNC//
+function getbooksbyauthor(author){
+  return new Promise((resolve,reject)=>{
+    setTimeout(()=>{
+      let author_extract=Object.values(books).filter(books=>books.author.toLowerCase()===author);
+      if (author_extract.length > 0) {
+        resolve(author_extract);
+      } else {
+        reject('no book found by author name');
+      }
+    }, 100);
+  });
+}
+// ^ Get Details of the Book Based on TITLE using PROMISE ASYNC ^ //
+function getbooksbytitle(title){
+  return new Promise((resolve,reject)=>{
+    setTimeout(()=>{
+      let title_extract = Object.values(books).filter(
+        book => book.title.toLowerCase() === title
+      );
+      if (title_extract.length > 0) {
+        resolve(title_extract);
+      } else {
+        reject('no book found by title');
+      }
+    }, 100);
+  });
+}
 public_users.post("/register", (req,res) => {
-  //Write your code here
+
   const username=req.body.username;
   const password=req.body.password;
   if(!username || !password){
@@ -37,7 +79,6 @@ public_users.post("/register", (req,res) => {
 
 // Get the book list available in the shop
 public_users.get('/',function (req, res) {
-  //Write your code here
   return res.status(200).json({
     books:books,
     message: "all books retrieved"
@@ -46,7 +87,6 @@ public_users.get('/',function (req, res) {
   
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
-  //Write your code here
   let isbn=req.params.isbn;
   let isbn_extrcat=books[isbn];
   if(!isbn_extrcat){
@@ -63,7 +103,6 @@ public_users.get('/isbn/:isbn',function (req, res) {
   
 // & THE GET BOOKS BASED ON AUTHOR & //
 public_users.get('/author/:author',function (req, res) {
-  //Write your code here
 // * THIS IS THE SIMPLE CODE FOR THE AUTHOR SEARCH BUT IT WILL NOT WORK AS EXPECTED AS WE NEED TO LOOP THROUGH THE BOOKS OBJECT TO FIND THE AUTHOR *
 // TODO: To search the books by converting author name to the lowercase 
 let author=req.params.author.toLowerCase();
@@ -105,11 +144,8 @@ public_users.get('/title/:title',function (req, res) {
 
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
-  //Write your code here
-  // let review=req.params.review;
   let isbn=req.params.isbn;
   if(books[isbn]){
-    // let review=req.params.review;
     return res.status(200).json({
       books:books[isbn].reviews,
       message:'Book review retrieved successfully'
@@ -119,10 +155,28 @@ public_users.get('/review/:isbn',function (req, res) {
     return res.status(404).json({message: "Review not found By ISBN"});
   }
 });
+// & CALLING THE ASYNC FUNCTION TO GET ALL BOOKS & //
 getAllBooks_Async().then((books)=>{
   console.log("All Books:",books);
 }).catch(err=>{
  console.error('error fetching books:',err);
 });
-
+// * CALLING THE ASYNC FUNCTION TO GET BOOKS BY ISBN *//
+getbookbyisbn("1").then((book)=>{
+  console.log("Book Details by ISBN:",book);
+}).catch(err=>{
+ console.error('error fetching book by isbn:',err);
+});
+// ~ CALLING THE ASYNC FUNCTION TO GET BOOKS BY AUTHOR ~ //
+getbooksbyauthor("Chinua Achebe".toLowerCase()).then((books)=>{
+  console.log("Books by Author:",books);
+}).catch(err=>{
+ console.error('error fetching books by author:',err);
+});
+// ^ CALLING THE ASYNC FUNCTION TO GET BOOKS BY TITLE ^ //
+getbooksbytitle("Things Fall Apart".toLowerCase()).then((books)=>{
+  console.log('books by title:',books);
+}).catch(err=>{
+  console.error('error fetching books by title:',err);
+});
 module.exports.general = public_users;
