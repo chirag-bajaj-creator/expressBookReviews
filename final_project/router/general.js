@@ -4,13 +4,26 @@ let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
-
+// TODO :get  all books list using async await and axios and promises
+// ^ Have to make the New function async function ^
+ function getAllBooks_Async() {
+  return new Promise((resolve,reject)=>{
+    setTimeout(()=>{
+    if(books){
+      resolve(books);
+  }
+  else{
+    reject('no book found');
+  }
+  },100);
+});
+}
 public_users.post("/register", (req,res) => {
   //Write your code here
   const username=req.body.username;
   const password=req.body.password;
   if(!username || !password){
-    return res.status(404).json({message:'Username and password are required.'});
+    return res.status(400).json({message:'Username and password are required.'});
   }
   // * check if username is valid and the then push both 
     if(!isValid(username)){
@@ -21,8 +34,6 @@ public_users.post("/register", (req,res) => {
     return res.status(404).json({message: "User Already there."});
   }
 });
-
-
 
 // Get the book list available in the shop
 public_users.get('/',function (req, res) {
@@ -107,6 +118,11 @@ public_users.get('/review/:isbn',function (req, res) {
   else{
     return res.status(404).json({message: "Review not found By ISBN"});
   }
+});
+getAllBooks_Async().then((books)=>{
+  console.log("All Books:",books);
+}).catch(err=>{
+ console.error('error fetching books:',err);
 });
 
 module.exports.general = public_users;
