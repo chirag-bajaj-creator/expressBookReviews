@@ -20,49 +20,53 @@ async function getAllBooks_Axios() {
   }
   
 }
-//  function getAllBooks_Async() {
-//   return new Promise((resolve,reject)=>{
-//     setTimeout(()=>{
-//     if(books){
-//       resolve(books);
-//   }
-//   else{
-//     reject('no book found');
-//   }
-//   },100);
-// });
-// }
-// ! THE FUNCTION TO FIND THE BOOKS DETAILS BASED ON ISBN !//
-function getbooksIsbnAxios(isbn){
 
+// ! THE FUNCTION TO FIND THE BOOKS DETAILS BASED ON ISBN !//
+async function getbooksIsbnAxios(isbn){
+try{
+  const response=await axios.get(`http://Localhost:5000/isbn/${isbn}`);
+  if(response.data.books){
+  return response.data.books;
+  }
+
+else{
+  throw new Error('Book Not Found');
+}
+}
+catch(error){
+  throw new Error('error fetching book by isbn'+error.message);
+}
 }
 // ~ TO FIND THE DETAILS OF THE {BOOKS BASED ON AUTHOR NAME USING PROMISE ASYNC//
-function getbooksbyauthor(author){
-  return new Promise((resolve,reject)=>{
-    setTimeout(()=>{
-      let author_extract=Object.values(books).filter(books=>books.author.toLowerCase()===author);
-      if (author_extract.length > 0) {
-        resolve(author_extract);
-      } else {
-        reject('no book found by author name');
-      }
-    }, 100);
-  });
+async function getBooksByAuthor_Axios(author){
+ try{
+  const response=await axios.get(`http://Localhost:5000/author/${author}`);
+  if(response.data.books&&response.data.books.length>0){
+    return response.data.books;
+  }
+  else{
+    throw new Error('no book found by author');
+  }
+
+ }
+ catch(error){
+  throw new Error('error fetching books by author'+error.message);
+ }
 }
 // ^ Get Details of the Book Based on TITLE using PROMISE ASYNC ^ //
-function getbooksbytitle(title){
-  return new Promise((resolve,reject)=>{
-    setTimeout(()=>{
-      let title_extract = Object.values(books).filter(
-        book => book.title.toLowerCase() === title
-      );
-      if (title_extract.length > 0) {
-        resolve(title_extract);
-      } else {
-        reject('no book found by title');
-      }
-    }, 100);
-  });
+async function getBooksByTitle_Axios(title){
+  try{
+    const response=await axios.get(`http://Localhost:5000/title/${title}`);
+    if(response.data.books&&response.data.books.length>0){
+      return response.data.books;
+    }
+    else{
+      throw new Error('no book found by title');
+    }
+  }
+  catch(error){
+    throw new Error('error fetching books by title'+error.message);
+  }
 }
 public_users.post("/register", (req,res) => {
 
@@ -163,21 +167,21 @@ getAllBooks_Axios().then((books)=>{
  console.error('error fetching books:',error.message);
 });
 // * CALLING THE ASYNC FUNCTION TO GET BOOKS BY ISBN *//
-// getbookbyisbn("1").then((book)=>{
-//   console.log("Book Details by ISBN:",book);
-// }).catch(error=>{
-//  console.error('error fetching book by isbn:',error.message);
-// });
-// // ~ CALLING THE ASYNC FUNCTION TO GET BOOKS BY AUTHOR ~ //
-// getbooksbyauthor("Chinua Achebe".toLowerCase()).then((books)=>{
-//   console.log("Books by Author:",books);
-// }).catch(error=>{
-//  console.error('error fetching books by author:',error.message);
-// });
-// // ^ CALLING THE ASYNC FUNCTION TO GET BOOKS BY TITLE ^ //
-// getbooksbytitle("Things Fall Apart".toLowerCase()).then((books)=>{
-//   console.log('books by title:',books);
-// }).catch(error=>{
-//   console.error('error fetching books by title:',error.message);
-// });
+getbooksIsbnAxios("1").then((book)=>{
+  console.log("Book Details by ISBN:",JSON.stringify(book,null,2));
+}).catch(error=>{
+ console.error('error fetching book by isbn:',error.message);
+});
+// ~ CALLING THE ASYNC FUNCTION TO GET BOOKS BY AUTHOR ~ //
+getBooksByAuthor_Axios("Chinua Achebe".toLowerCase()).then((books)=>{
+  console.log("Books by Author:",books);
+}).catch(error=>{
+ console.error('error fetching books by author:',error.message);
+});
+// ^ CALLING THE ASYNC FUNCTION TO GET BOOKS BY TITLE ^ //
+getBooksByTitle_Axios("Things Fall Apart".toLowerCase()).then((books)=>{
+  console.log('books by title:',books);
+}).catch(error=>{
+  console.error('error fetching books by title:',error.message);
+});
 module.exports.general = public_users;
