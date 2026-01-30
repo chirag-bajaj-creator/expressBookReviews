@@ -6,33 +6,37 @@ const public_users = express.Router();
 
 // TODO :get  all books list using async await and axios and promises
 // ^ Have to make the New function async function ^
- function getAllBooks_Async() {
-  return new Promise((resolve,reject)=>{
-    setTimeout(()=>{
-    if(books){
-      resolve(books);
-  }
-  else{
-    reject('no book found');
-  }
-  },100);
-});
-}
-// ! THE FUNCTION TO FIND THE BOOKS DETAILS BASED ON ISBN !//
-function getbookbyisbn(isbn){
-  return new Promise((resolve,reject)=>{
-    setTimeout(()=>{
-      if(books){
-        resolve(books[isbn]);
-      }
-      else{
-        reject('no book found');
-      }
-    },100);
+const axios=require('axios');
+// ! IT IS THE METHOD TO GET ALL BOOKS USING ASYNC PROMISE CALLBACKS
+// const axios = require('axios');
 
-});
+async function getAllBooks_Axios() {
+  try{
+    const response=await axios.get('http://Localhost:5000/');
+    return response.data.books;
+  }
+  catch(error){
+    throw new Error ('error fetching all books'+error.message);
+  }
+  
 }
-// ~ TO FIND THE DETAILS OF THE BOOKS BASED ON AUTHOR NAME USING PROMISE ASYNC//
+//  function getAllBooks_Async() {
+//   return new Promise((resolve,reject)=>{
+//     setTimeout(()=>{
+//     if(books){
+//       resolve(books);
+//   }
+//   else{
+//     reject('no book found');
+//   }
+//   },100);
+// });
+// }
+// ! THE FUNCTION TO FIND THE BOOKS DETAILS BASED ON ISBN !//
+function getbooksIsbnAxios(isbn){
+
+}
+// ~ TO FIND THE DETAILS OF THE {BOOKS BASED ON AUTHOR NAME USING PROMISE ASYNC//
 function getbooksbyauthor(author){
   return new Promise((resolve,reject)=>{
     setTimeout(()=>{
@@ -83,8 +87,7 @@ public_users.get('/',function (req, res) {
     books:books,
     message: "all books retrieved"
   });
-});
-  
+}); 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
   let isbn=req.params.isbn;
@@ -146,37 +149,35 @@ public_users.get('/title/:title',function (req, res) {
 public_users.get('/review/:isbn',function (req, res) {
   let isbn=req.params.isbn;
   if(books[isbn]){
-    return res.status(200).json({
-      books:books[isbn].reviews,
-      message:'Book review retrieved successfully'
-    });
+      res.status(200).json(
+        {reviews:books[isbn].reviews});
   }
   else{
     return res.status(404).json({message: "Review not found By ISBN"});
   }
 });
 // & CALLING THE ASYNC FUNCTION TO GET ALL BOOKS & //
-getAllBooks_Async().then((books)=>{
-  console.log("All Books:",books);
-}).catch(err=>{
- console.error('error fetching books:',err);
+getAllBooks_Axios().then((books)=>{
+  console.log("All Books:",JSON.stringify(books,null,2));
+}).catch(error=>{
+ console.error('error fetching books:',error.message);
 });
 // * CALLING THE ASYNC FUNCTION TO GET BOOKS BY ISBN *//
-getbookbyisbn("1").then((book)=>{
-  console.log("Book Details by ISBN:",book);
-}).catch(err=>{
- console.error('error fetching book by isbn:',err);
-});
-// ~ CALLING THE ASYNC FUNCTION TO GET BOOKS BY AUTHOR ~ //
-getbooksbyauthor("Chinua Achebe".toLowerCase()).then((books)=>{
-  console.log("Books by Author:",books);
-}).catch(err=>{
- console.error('error fetching books by author:',err);
-});
-// ^ CALLING THE ASYNC FUNCTION TO GET BOOKS BY TITLE ^ //
-getbooksbytitle("Things Fall Apart".toLowerCase()).then((books)=>{
-  console.log('books by title:',books);
-}).catch(err=>{
-  console.error('error fetching books by title:',err);
-});
+// getbookbyisbn("1").then((book)=>{
+//   console.log("Book Details by ISBN:",book);
+// }).catch(error=>{
+//  console.error('error fetching book by isbn:',error.message);
+// });
+// // ~ CALLING THE ASYNC FUNCTION TO GET BOOKS BY AUTHOR ~ //
+// getbooksbyauthor("Chinua Achebe".toLowerCase()).then((books)=>{
+//   console.log("Books by Author:",books);
+// }).catch(error=>{
+//  console.error('error fetching books by author:',error.message);
+// });
+// // ^ CALLING THE ASYNC FUNCTION TO GET BOOKS BY TITLE ^ //
+// getbooksbytitle("Things Fall Apart".toLowerCase()).then((books)=>{
+//   console.log('books by title:',books);
+// }).catch(error=>{
+//   console.error('error fetching books by title:',error.message);
+// });
 module.exports.general = public_users;
